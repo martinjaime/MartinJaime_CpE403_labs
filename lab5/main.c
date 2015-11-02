@@ -10,16 +10,16 @@
 #include "inc/hw_memmap.h"
 #include "driverlib/debug.h"
 #include "driverlib/sysctl.h"
-#include "driverlib/adc.h"  // definitions to use ADC driver
-#include "driverlib/gpio.h"
+#include "driverlib/adc.h" 	// definitions to use ADC driver
+#include "driverlib/gpio.h"	// add gpio APIs
 
-#define TARGET_IS_BLIZZARD_RB1 // Symbol to access the API's in ROM.
+#define TARGET_IS_BLIZZARD_RB1 	// Symbol to access the API's in ROM.
 #include "driverlib/rom.h"
 
 // For Task 3
-#include "driverlib/timer.h"
-#include "driverlib/interrupt.h"
-#include "inc/tm4c123gh6pm.h"
+#include "driverlib/timer.h"		// timer library
+#include "driverlib/interrupt.h"	// interrupt APIs and macros
+#include "inc/tm4c123gh6pm.h"		// Define interrupt macros for device
 
 
 #ifdef DEBUG  // This code is executed when driver library encounters an error
@@ -28,7 +28,7 @@ void__error__(char *pcFilename, uint32_t ui32Line)
 }
 #endif
 
-void IntTimer0Handler(void);
+void IntTimer0Handler(void); // timer handler prototype
 
 int main()
 {
@@ -42,8 +42,8 @@ int main()
 	// Set LEDs as outputs
 	ROM_GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3);
 
-	ROM_SysCtlPeripheralEnable( SYSCTL_PERIPH_ADC0 ); // enable the ADC0 peripheral
-	ROM_ADCHardwareOversampleConfigure( ADC0_BASE, 64 ); // hardware averaging (64 samples)
+	ROM_SysCtlPeripheralEnable( SYSCTL_PERIPH_ADC0 ); 		// enable the ADC0 peripheral
+	ROM_ADCHardwareOversampleConfigure( ADC0_BASE, 64 ); 	// hardware averaging (64 samples)
 
 	// Configure ADC0 sequencer to use sample sequencer 2, and have the processor trigger the sequence.
 	ROM_ADCSequenceConfigure( ADC0_BASE, 2, ADC_TRIGGER_PROCESSOR, 0 );
@@ -56,17 +56,17 @@ int main()
 	ROM_ADCSequenceEnable( ADC0_BASE, 2 ); // Enable ADC sequencer 2
 
 	// Timer configuration
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0); // enable clock to TIMER0
-	TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC); // Configure TIMER0 as 32 bit timer
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0); 		// enable clock to TIMER0
+	TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC); 	// Configure TIMER0 as 32 bit timer
 
 	// Calculate and set delay
-	ui32Period = SysCtlClockGet() / 200; // set the period
+	ui32Period = SysCtlClockGet() / 2; // set frequency of interrupt to 2 Hz.
 	TimerLoadSet(TIMER0_BASE, TIMER_A, ui32Period-1);
 
 	// Enable interrupt
 	IntEnable(INT_TIMER0A); // enable vector associated with TIMER0A
 	TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT); // Enable event to generate interrupt
-	IntMasterEnable(); // Master int enable for all interrupts
+	IntMasterEnable(); 		// Master int enable for all interrupts
 
 	// Enable the timer
 	TimerEnable(TIMER0_BASE, TIMER_A);
@@ -76,7 +76,6 @@ int main()
 
 void IntTimer0Handler(void) {
 	uint32_t ui32ADC0Value[4]; // ADC FIFO
-
 	volatile uint32_t ui32TempAvg; // Store average
 	volatile uint32_t ui32TempValueC; // Temp in C
 	volatile uint32_t ui32TempValueF; // Temp in F
@@ -97,7 +96,7 @@ void IntTimer0Handler(void) {
 	ui32TempValueF = (( ui32TempValueC * 9) + 160)/5;
 
 	// Read the current temperature. Light LED 1 if temp > 80 deg-F
-	if (ui32TempValueF > 57)
+	if (ui32TempValueF > 80)
 	{
 		ROM_GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 2);
 	}
@@ -105,6 +104,15 @@ void IntTimer0Handler(void) {
 	{
 		ROM_GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0);
 	}
-
+	/* To test handler's frequency
+	if (GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_2))
+	{
+		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0);
+	}
+	else
+	{
+		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 4);
+	}
+	*/
 }
 

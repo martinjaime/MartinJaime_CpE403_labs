@@ -14,8 +14,6 @@
 #include "driverlib/gpio.h"
 #include "driverlib/timer.h"
 
-// Added The following four header files to use sw2
-//#include "enable_sw2.h"
 #include "inc/hw_gpio.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/rom_map.h"
