@@ -96,7 +96,7 @@ void print_axis_header(char axis)			// Print header for axis
 	}
 }
 
-void print_shortInt(signed short int value){// Print Header at start of program
+void print_shortInt(signed short int value){
 	char buffer[10];
 	char sign = '\0';
 	int i = 0; // iterator
@@ -135,7 +135,6 @@ void print_shortInt(signed short int value){// Print Header at start of program
 		UARTCharPut(UART0_BASE, buffer[i]);
 	}
 	UARTCharPut(UART0_BASE, '\n');UARTCharPut(UART0_BASE, '\r');
-
 }
 
 void Print_header(){			// Print Header at start of program
