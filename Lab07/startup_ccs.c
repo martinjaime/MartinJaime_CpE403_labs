@@ -300,5 +300,6 @@ IntDefaultHandler(void)
     //
     while(1)
     {
+      printf("hello world!");
     }
 }
